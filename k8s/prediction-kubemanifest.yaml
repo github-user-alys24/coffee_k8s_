@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prediction-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prediction-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1  
+      maxUnavailable: 0  
+  template:
+    metadata:
+      labels:
+        app: prediction-app
+    spec:
+      containers:
+      - name: prediction-container
+        image: alyssa8008/prediction-service:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: preprocessed-data-volume
+          mountPath: /preprocessed_data
+        - name: model-volume
+          mountPath: /model
+      volumes:
+      - name: preprocessed-data-volume
+        persistentVolumeClaim:
+          claimName: preprocessed-data-pvc  
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-pvc           
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prediction-service
+spec:
+  selector:
+    app: prediction-app
+  ports:
+  - protocol: TCP
+    port: 8084
+    targetPort: 80
+  type: ClusterIP
+
