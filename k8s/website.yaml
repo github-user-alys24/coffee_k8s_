@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: website
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+        - name: website
+          image: php:apache
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: template
+              mountPath: /var/www/html
+      volumes:
+        - name: template
+          hostPath:
+            path: /template
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: website
+spec:
+  ports:
+    - port: 8081
+      targetPort: 80
+  selector:
+    app: website
