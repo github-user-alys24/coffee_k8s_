@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preprocessing-app
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: preprocessing-app
+  template:
+    metadata:
+      labels:
+        app: preprocessing-app
+    spec:
+      containers:
+      - name: preprocessing-container
+        image: alyssa8008/preprocessing-service:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: raw-data-volume
+          mountPath: /raw_data
+        - name: preprocessed-data-volume
+          mountPath: /preprocessed_data
+      volumes:
+      - name: raw-data-volume
+        persistentVolumeClaim:
+          claimName: raw-data-pvc 
+      - name: preprocessed-data-volume
+        persistentVolumeClaim:
+          claimName: preprocessed-data-pvc  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: preprocessing-service
+spec:
+  selector:
+    app: preprocessing-app
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: raw-data-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /raw_data
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: preprocessed-data-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /preprocessed_data 
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: raw-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: preprocessed-data-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: manual
+
