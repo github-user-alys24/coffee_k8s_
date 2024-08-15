@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: training-app
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: training-app
+  template:
+    metadata:
+      labels:
+        app: training-app
+    spec:
+      containers:
+      - name: training-container
+        image: alyssa8008/training-service:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: preprocessed-data-volume
+          mountPath: /preprocessed_data
+        - name: model-volume
+          mountPath: /model
+      volumes:
+      - name: preprocessed-data-volume
+        persistentVolumeClaim:
+          claimName: preprocessed-data-pvc  
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: model-pvc           
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: training-service
+spec:
+  selector:
+    app: training-app
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: model-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /model
+  storageClassName: manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: manual
+
