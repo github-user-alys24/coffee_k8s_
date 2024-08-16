@@ -23,14 +23,9 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-        - name: preprocessed-data-volume
-          mountPath: /preprocessed_data
         - name: model-volume
           mountPath: /model
-      volumes:
-      - name: preprocessed-data-volume
-        persistentVolumeClaim:
-          claimName: preprocessed-data-pvc  
+      volumes: 
       - name: model-volume
         persistentVolumeClaim:
           claimName: model-pvc           
