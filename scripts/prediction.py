@@ -1,4 +1,6 @@
-from flask import Flask, send_file, request, jsonify
+# Returns the Predicted, Actual, and difference of values
+
+from flask import Flask, send_file
 from flask_restful import Resource, Api
 
 import pandas as pd
@@ -32,44 +34,23 @@ y_train = pd.read_csv(f'{input_dir}/y_train.csv', header=None)
 y_test = pd.read_csv(f'{input_dir}/y_test.csv', header=None)
 y_train, y_test = np.ravel(y_train), np.ravel(y_test)
 
-def pred():
-    # Get data from the request
-    if request.is_json:
-        data = request.get_json()
-    else:
-        data = request.form 
-    # Extract month from data
-    month = data.get('month')
-    month = int(month)
-    # Validate the input
-    if month is None:
-        return jsonify({"error": "Month is required"}), 400
-    
-    # Prepare the data for prediction
-    hours = list(range(6, 21))
-    month = month+ 6
-    # Make predictions with GBT
-    input_pred = pd.DataFrame({"Month": [month]* len(hours), 'Hour': hours})
-    y_pred= gbt.predict(input_pred)
-    input_pred['predictedRevenue'] = y_pred
-    # Calculate the total predicted revenue
-    total_predicted_revenue = round(input_pred['predictedRevenue'].sum(), 2)
+# GBT prediction
+y_pred_gbt = gbt.predict(X_test)
 
-    input_pred_json = input_pred.to_dict(orient='records')
-    xy_data = {
-        'Table': input_pred_json,
-        'Predicted Overall Revenue ($)': total_predicted_revenue
-    }
-    return jsonify(xy_data)
-
-class Predict(Resource):
-    def post(self):
-        return pred()
+class inference_gbt(Resource):
     def get(self):
-        return pred()
-        
-# Add resources to the API
-api.add_resource(Predict, '/predict')
+        y_pred = gbt.predict(X_test)
+        results = pd.DataFrame({
+            'Actual': y_test, 
+            'Predicted': y_pred_gbt,
+            'Difference %': 100 - (y_test/y_pred_gbt)*100
+        })
+        print(results.head(25))
+        result = results.head(25).to_dict(orient='records')
+        return result
 
+api.add_resource(inference_gbt, '/')
+
+# Run the application
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80, debug=True)
