@@ -83,25 +83,35 @@
     <main>
         <div id="home" class="page active">
             <h2>Welcome!</h2>
-            <p>Coffee Shop Data</p>
-			<p>This is the home page of the website.</p>
+            <h3>Understand your revenue better!</h3>
+			<p>Built with Kubernetes</p>
+			<table>
+				<thead>
+				    <tr><th style="text-align: center;">Contributors</th></tr>
+				</thead>
+				<tbody>
+					<tr><td style="text-align: center;">Alyssa 211082M</td></tr>
+					<tr><td style="text-align: center;">Ayumi 222427Y</td></tr>
+					<tr><td style="text-align: center;">Terrence 222582F</td></tr>
+				</tbody>
+			</table>
         </div>
        <div id="inspect" class="page">
             <h2>dataUnderstanding</h2>
             <p>Top 25 rows of raw data</p>
-			<button onclick="openDataInNewTab()">View Data</button>
+			<button onclick="window.open('http://localhost:8080/top25rows')">View Data</button>
 			<p>Revenue by Product Categories</p>
-			<button onclick="open1DataInNewTab()">View Products Data</button>
+			<button onclick="window.open('http://localhost:8080/products')">View Products Data</button>
 			<p>Graphs on total revenue by store location and product_type</p>
-			<button onclick="open1GraphInNewTab()">View Graphs</button>
+			<button onclick="window.open('http://localhost:8080/1graph')">View Graph</button>
         </div>
         <div id="preprocessing" class="page">
             <h2>preProcessing</h2>
             <p>Data from Preprocessing Service</p>
 			<p>View X and y data</p>
-			<button onclick="viewShape()">View Shape</button>
+			<button onclick="window.open('http://localhost:8082/shape')">View Shape</button>
 			<p>View Graphical Data in a new Tab</p>
-            <button onclick="openGraphInNewTab()">View Graph</button>
+			<button onclick="window.open('http://localhost:8080/graph')">View Graph</button>
 			<p> </p>
 			<h3>preProcessed data</h3>
             <table>
@@ -117,10 +127,9 @@
                     // Fetch the JSON data from the preprocessing service
                     $json_url = 'http://localhost:8080/';
                     $json = @file_get_contents($json_url);
-
                     // Check if the file_get_contents was successful
                     if ($json === FALSE) {
-                        echo "<tr><td colspan='3'>Error fetching data from $json_url</td></tr>";
+                        echo '<tr><td colspan="3" style="text-align: center;"><button onclick="window.open(\'http://localhost:8080/\')">Get preprocessed data</button></td></tr>';
                     } else {
                         // Decode the JSON data
                         $data = json_decode($json, true); // Decode as an associative array
@@ -167,7 +176,7 @@
 
                     // Check if the file_get_contents was successful
                     if ($json === FALSE) {
-                        echo "<tr><td colspan='3'>Error fetching data from $json_url</td></tr>";
+                        echo '<tr><td colspan="3" style="text-align: center;"><button onclick="window.open(\'http://localhost:8082/\')">Get model metrics</button></td></tr>';
                     } else {
                         // Decode the JSON data
                         $data = json_decode($json, true); // Decode as an associative array
@@ -194,11 +203,11 @@
 			</table>
 			<p> </p>
 			<p>Feature Importances for GBT</p>
-			<button onclick="featureImpt1()">View Feature Importances for GBT</button>
+			<button onclick="window.open('http://localhost:8082/importances_gbt')">View Feature Importances for GBT</button>
         </div>
-        <div id="prediction" class="page">
-            <h2>prediction</h2>
-            <p>View performance of the models, prints first 25 rows</p>
+        <div id="inference" class="page">
+            <h2>inference</h2>
+            <p>View prediction performance of the model, prints first 25 rows</p>
 			<h3>Gradient Boosted Trees</h3>
 			<table>
                 <thead>
@@ -216,7 +225,7 @@
 
                     // Check if the file_get_contents was successful
                     if ($json === FALSE) {
-                        echo "<tr><td colspan='3'>Error fetching data from $json_url</td></tr>";
+                        echo '<tr><td colspan="3" style="text-align: center;"><button onclick="window.open(\'http://localhost:8083/\')">Get predictions</button></td></tr>';
                     } else {
                         // Decode the JSON data
                         $data = json_decode($json, true); // Decode as an associative array
@@ -243,8 +252,8 @@
                 </tbody>
 			</table>
         </div>
-		<div id="inference" class="page">
-            <h2>inference</h2>
+		<div id="prediction" class="page">
+            <h2>prediction</h2>
 			<p>Insert Month to get Predicted Potential Overall Revenue</p>
 			<p>Predicts from June 2023 onwards (Month 6)</p>
 			<h2>Enter Month</h2>
@@ -255,7 +264,7 @@
 		</div>
     </main>
 		<footer>
-			<p>&copy; 2024 cutie patooties</p>
+			<p>&copy; 2024 Alyssa, Ayumi & Terrence</p>
 		</footer>
 	<script>
 		function showPage(pageId) {
@@ -266,34 +275,6 @@
 			// Show the selected page
 			const activePage = document.getElementById(pageId);
 			activePage.classList.add('active');
-		}
-
-		function openGraphInNewTab() {
-			window.open('http://localhost:8080/graph');
-		}
-		
-		function openDataInNewTab() {
-			window.open('http://localhost:8080/top25rows');
-		}
-
-		function open1DataInNewTab() {
-			window.open('http://localhost:8080/products');
-		}
-
-		function open1GraphInNewTab() {
-			window.open('http://localhost:8080/1graph');
-		}
-
-		function viewShape() {
-			window.open('http://localhost:8082/shape');
-		}
-
-		function featureImpt() {
-			window.open('http://localhost:8082/importances_rf');
-		}
-
-		function featureImpt1() {
-			window.open('http://localhost:8082/importances_gbt');
 		}
 	</script>	
 	</body>
